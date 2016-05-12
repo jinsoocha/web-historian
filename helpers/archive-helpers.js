@@ -44,10 +44,21 @@ exports.isUrlInList = function(url, callback) {
   });
 };
 
-exports.addUrlToList = function() {
+//need to figure out what this one does 
+
+exports.addUrlToList = function(url, callback) {
+  var context = this;
+  fs.writeFile(this.paths.list, url, function() {
+    url = 'www.' + url + '\n';
+    url + '>' + context.paths.list;
+    callback();
+  });
 };
 
-exports.isUrlArchived = function() {
+exports.isUrlArchived = function(url, callback) {
+  fs.readFile(this.paths.archivedSites + '/' + url, 'utf-8', function(err, data) {
+    callback(data);
+  });
 };
 
 exports.downloadUrls = function() {
