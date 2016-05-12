@@ -17,7 +17,8 @@ exports.handleRequest = function (req, res) {
   
   var handleFile = function (error, file) {
     if (error) {
-      return console.error('Uhoh, there was an error', error);
+      res.writeHead(404, headers);
+      res.end(console.log(error));
     } else {
       res.writeHead(200, headers);  
       res.write(file);  
@@ -26,7 +27,16 @@ exports.handleRequest = function (req, res) {
   };  
 
   if (req.method === 'GET') {
-    fs.readFile(archive.paths.siteAssets + '/index.html', 'utf-8', handleFile);
+    if (req.url === '/') {
+      fs.readFile(archive.paths.siteAssets + '/index.html', 'utf-8', handleFile);
+    } else if (req.url === '/styles.css') {
+      fs.readFile(archive.paths.siteAssets + '/styles.css', 'utf-8', function(error, file) {
+        res.write(file);
+        res.end();
+      });  
+    } else {
+      fs.readFile(archive.paths.archivedSites + req.url, 'utf-8', handleFile);
+    }
   }
 
   if (req.method === 'POST') {
