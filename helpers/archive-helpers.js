@@ -28,22 +28,21 @@ exports.initialize = function(pathsObj) {
 
 exports.readListOfUrls = function(callback) {
   fs.readFile(this.paths.list, 'utf-8', function(err, data) {
-    var array = [];
     data = data.split('\n');
     callback(data);
   });
 };
 
-exports.isUrlInList = function(url, callback) {
-  fs.readFile(this.paths.list, 'utf-8', function(err, data) {
-    var array = [];
-    data = data.split('\n');
-    
-    for (var x = 0; x < data.length; x++) {
-      callback(data[x]);
-    }  
-  });
-};
+// exports.isUrlInList = function(url, callback) {
+//   this.readListOfUrls(function(listArray) {
+//     for (var i = 0; i < listArray.length; i++) {
+//       if (url === listArray[i]) {
+//         found = true;
+//       }
+//     }
+//     callback(found);
+//   });
+// };
 
 //need to figure out what this one does 
 
@@ -56,15 +55,17 @@ exports.addUrlToList = function(url, callback) {
   });
 };
 
-exports.isUrlArchived = function(url, callback) {
-  fs.readFile(this.paths.archivedSites + '/' + url, 'utf-8', function(err, data) {
-    callback(data);
-  });
-};
+// exports.isUrlArchived = function(url) {
+//   fs.readFile(this.paths.archivedSites + '/' + url, 'utf-8', function(err, data) {
+//     if (data) {
+//       return true;
+//     }
+//   });
+// };
 
-exports.downloadUrls = function(array) {
+exports.downloadUrls = function(url) {
   var context = this;
-
+  console.log("downloading!")
   var callback = function(url) {
     var options = {
       host: url,
@@ -88,8 +89,6 @@ exports.downloadUrls = function(array) {
     
   };
 
-  for (var i = 0; i < array.length; i ++) {
-    callback(array[i]);
-  }
+  callback(url);
 
 };

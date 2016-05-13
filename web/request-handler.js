@@ -14,13 +14,13 @@ var headers = {
 
 exports.handleRequest = function (req, res) {
 
-  
+
   var handleFile = function (error, file) {
     if (error) {
       res.writeHead(404, headers);
       res.end(console.log(error));
     } else {
-      res.writeHead(200, headers);  
+      res.writeHead(200, headers);
       res.write(file);  
       res.end();  
     }
@@ -28,7 +28,11 @@ exports.handleRequest = function (req, res) {
 
   if (req.method === 'GET') {
     if (req.url === '/') {
-      fs.readFile(archive.paths.siteAssets + '/index.html', 'utf-8', handleFile);
+      fs.readFile(archive.paths.siteAssets + '/index.html', 'utf-8', function(error, file) {
+        res.writeHead(200, headers);
+        res.write(file);  
+        res.end();  
+      });
     } else if (req.url === '/styles.css') {
       fs.readFile(archive.paths.siteAssets + '/styles.css', 'utf-8', function(error, file) {
         res.write(file);
@@ -40,15 +44,33 @@ exports.handleRequest = function (req, res) {
   }
 
   if (req.method === 'POST') {
-    var message;
+    var message = '';
     req.on('data', function(chunk) {
-      message = chunk.slice(4, chunk.length) + '\n';
+      message += chunk;
+      message = message.slice(4, message.length);
     }).on('end', function() {
-      fs.writeFile(archive.paths.list, message, function() {
-        message + '>' + archive.paths.list;
+      archive.readListOfUrls(function(listArray) {
+        if (listArray.indexOf(message) === -1) {
+          console.log(message, "new url, putting it in the text file")
+          fs.appendFile(archive.paths.list, message + '\n');
+          archive.downloadUrls(message);          
+        }
+      });      
+      fs.readFile(archive.paths.archivedSites + '/' + message, 'utf-8', function(error, contents) {
+        if (contents) {
+          console.log("we have the contents!")
+          res.writeHead(200, headers);
+          res.write(contents);  
+          res.end();  
+        } else {
+          console.log("download the url")
+          fs.readFile(archive.paths.siteAssets + '/loading.html', 'utf-8', function(error, file) {
+            res.writeHead(200, headers);
+            res.write(file);  
+            res.end();  
+          });
+        }
       });
-      res.writeHead(302, headers);
-      res.end();
-    }); 
+    });         
   }
 };

@@ -3,4 +3,3 @@
 
 var archive = require('archive');
 
-archive.readListOfUrls(downloadUrls);
